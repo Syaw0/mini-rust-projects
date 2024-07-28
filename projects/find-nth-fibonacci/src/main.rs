@@ -1,8 +1,14 @@
-// use std::{}
+/*
+ * We just follow this formula that gives us the nth number of the Fibonacci sequence
+ * F(n) = (φ^n - (1-φ)^n) / √5
+ * This function uses the `Golden Ratio` (φ), which is approximately equal to 1.618033988749895
+ * The Golden Ratio is an irrational number that has unique properties, making it a fundamental element of mathematics and science
+ * In the context of the Fibonacci sequence, the Golden Ratio is used to calculate the nth number in the sequence
+ */
 
 // ============================================================================
 
-const GOLDEN_RATIO: f64 = 1.618033988749895; // known as φ (phi)
+const GOLDEN_RATIO: f64 = 1.618033988749895; // known as φ (phi), the Golden Ratio
 
 fn main() {
     // just clear the console for us
