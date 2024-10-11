@@ -1,4 +1,4 @@
-use std::{ env, error::Error, fs, vec };
+use std::{ env, error::Error, fs };
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(&config.filepath)?;
@@ -22,20 +22,24 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn build(mut args: Vec<String>) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("Not Enough Arguments");
-        }
-        let query = args.remove(1);
-        let filepath = args.remove(1);
+    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+        args.next();
 
-        let mut ignore_case = env::var("IGNORE_CASE").is_ok();
-
-        for arg in args.iter() {
-            if arg == "-i" {
-                ignore_case = true;
+        let query = match args.next() {
+            Some(q) => q,
+            None => {
+                return Err("Didn't get the query string");
             }
-        }
+        };
+
+        let filepath = match args.next() {
+            Some(q) => q,
+            None => {
+                return Err("Didn't get the filepath");
+            }
+        };
+
+        let ignore_case = env::var("IGNORE_CASE").is_ok();
 
         Ok(Config {
             query,
@@ -46,28 +50,19 @@ impl Config {
 }
 
 fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = vec![];
-
-    contents.lines().for_each(|line| {
-        if line.contains(query) {
-            results.push(line);
-        }
-    });
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = vec![];
     let query = query.to_lowercase();
 
-    contents.lines().for_each(|line| {
-        if line.to_lowercase().contains(&query) {
-            results.push(line);
-        }
-    });
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.to_lowercase().contains(&query))
+        .collect()
 }
 
 #[cfg(test)]
